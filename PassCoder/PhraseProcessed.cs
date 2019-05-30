@@ -111,12 +111,17 @@ namespace PassCoder
             }
         }
 
-        private char GetAvaibleCharForBaseCreate(char character)
+        private char GetAvaibleLetterBase(char character)
         {
-
-            char temp;
-
-            return temp;
+            char returned = character;
+            for(int i = 0; i < usedLetter.Length; i++)
+            {
+                if (usedLetter[i] == character)
+                {
+                    
+                }
+            }
+            return returned;
         }
     }
 }

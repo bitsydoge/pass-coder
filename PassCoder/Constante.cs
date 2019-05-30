@@ -21,5 +21,19 @@ namespace PassCoder
             }
             return AllSymboleList.Length;
         }
+
+        public static int SpecialSymboleValue(char character)
+        {
+            if (character <= 0) throw new ArgumentOutOfRangeException(nameof(character));
+            for (int i = 0; i < AllSymboleList.Length; i++)
+            {
+                if (character == AllSymboleList[i])
+                {
+                    return i;
+                }
+            }
+            return AllSymboleList.Length;
+        }
+
     }
 }
