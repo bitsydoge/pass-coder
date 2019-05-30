@@ -12,7 +12,7 @@ namespace PassCoder
         private readonly int _weightOriginal;
         private readonly int _weightBlended;
 
-        private readonly int _offset;
+        private readonly uint _offset;
 
         private readonly StringBuilder _blendedSymboleList = new StringBuilder(Constante.AllSymboleList);
 
@@ -21,6 +21,9 @@ namespace PassCoder
 
         private Chaos _chaos;
 
+        private char[] usedLetter = new char[26+26];
+        private char[] usedSymbole = new char[Constante.SpecialSymbole.Length];
+        private char[] usedFigure = new char[9];
         public PhraseProcessed(string name)
         {
             Console.WriteLine();
@@ -53,11 +56,11 @@ namespace PassCoder
             Console.WriteLine("WeightBlended : " + _weightBlended);
 
             // Calculate Offset
-            _offset = (_weightOriginal * _weightBlended - _lenght - _weightBlended) % Constante.AllSymboleList.Length;
+            _offset = (uint)(_weightOriginal * _weightBlended - _lenght - _weightBlended) % (uint)Constante.AllSymboleList.Length;
             Console.WriteLine("Offset : " + _offset);
 
             // Base String Calculate
-            baseStringCreate();
+            BaseStringCreate();
 
             //
             Console.WriteLine();
@@ -99,9 +102,21 @@ namespace PassCoder
             return _blendedSymboleList.Length;
         }
 
-        private void baseStringCreate()
+        private void BaseStringCreate()
+        {
+            string[] words = _name.Split(' ');
+            for (int i = 0; i < words.Length; i++)
+            {
+                Console.WriteLine(i + " : " + words[i]);
+            }
+        }
+
+        private char GetAvaibleCharForBaseCreate(char character)
         {
 
+            char temp;
+
+            return temp;
         }
     }
 }
