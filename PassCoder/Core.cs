@@ -82,9 +82,30 @@ namespace PassCoder
 
                 Chaos newChaos = new Chaos(newSeed);
 
+                ValuedSymboleList post_last = new ValuedSymboleList(final.ToString());
+                post_last.Randomize(newChaos);
+                final = new StringBuilder(post_last.List.ToString());
+
+                // Check Size and compensate with adding symbole
+                UniqueSymbolePool poolSpecialSymbole = new UniqueSymbolePool(Constante.SpecialSymbole);
+                int number_special_to_add = 4;
+                if (final.Length <= 14)
+                {
+                    number_special_to_add += (14 - final.Length);
+                }
+
+                for (int i = 0; i < number_special_to_add; i++)
+                {
+                    final.Append(Constante.SpecialSymbole.Value2Symbole(newChaos.Rand() % Constante.SpecialSymbole.Length()));
+                }
+
                 ValuedSymboleList last = new ValuedSymboleList(final.ToString());
                 last.Randomize(newChaos);
                 final = new StringBuilder(last.List.ToString());
+
+                // Count Upcase
+                
+
             }
 
             public void WriteFinal()

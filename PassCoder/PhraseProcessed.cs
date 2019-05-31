@@ -20,7 +20,6 @@ namespace PassCoder
         public StringBuilder _baseOffseted = new StringBuilder();
 
         public UniqueSymbolePool _poolLetter = new UniqueSymbolePool(Constante.LetterSymbole);
-        public UniqueSymbolePool _poolSpecialSymbole = new UniqueSymbolePool(Constante.SpecialSymbole);
         public UniqueSymbolePool _poolFigure = new UniqueSymbolePool(Constante.FigureSymbole);
 
         public char[] _usedLetter = new char[Constante.LetterSymbole.Length()];
