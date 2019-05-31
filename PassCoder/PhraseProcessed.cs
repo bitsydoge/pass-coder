@@ -5,25 +5,28 @@ namespace PassCoder
 {
     public class PhraseProcessed
     {
-        private readonly string _name;
-        private readonly int _lenght;
-        private readonly bool _even;
+        public readonly string _name;
+        public readonly uint _lenght;
+        public readonly bool _even;
 
-        private readonly int _weightOriginal;
-        private readonly int _weightBlended;
+        public readonly uint _weightOriginal;
+        public readonly uint _weightBlended;
 
-        private readonly uint _offset;
+        public readonly uint _offset;
 
-        private readonly StringBuilder _blendedSymboleList = new StringBuilder(Constante.AllSymboleList);
+        public readonly ValuedSymboleList _blendedSymboleList = new ValuedSymboleList(Constante.AllSymbole);
 
-        private StringBuilder _base = new StringBuilder();
-        private StringBuilder _baseOffseted = new StringBuilder();
+        public StringBuilder _base = new StringBuilder();
+        public StringBuilder _baseOffseted = new StringBuilder();
 
-        private Chaos _chaos;
+        public UniqueSymbolePool _poolLetter = new UniqueSymbolePool(Constante.LetterSymbole);
+        public UniqueSymbolePool _poolSpecialSymbole = new UniqueSymbolePool(Constante.SpecialSymbole);
+        public UniqueSymbolePool _poolFigure = new UniqueSymbolePool(Constante.FigureSymbole);
 
-        private char[] usedLetter = new char[26+26];
-        private char[] usedSymbole = new char[Constante.SpecialSymbole.Length];
-        private char[] usedFigure = new char[9];
+        public char[] _usedLetter = new char[Constante.LetterSymbole.Length()];
+        public char[] _usedSymbole = new char[Constante.SpecialSymbole.Length()];
+        public char[] _usedFigure = new char[Constante.FigureSymbole.Length()];
+
         public PhraseProcessed(string name)
         {
             Console.WriteLine();
@@ -31,97 +34,96 @@ namespace PassCoder
             Console.WriteLine("----------------------------------");
             // Set Value
             _name = name;
-            _lenght = name.Length;
-            Console.WriteLine("Lenght : " + _lenght);
+            _lenght = (uint)name.Length;
+            Console.WriteLine("Length : " + _lenght);
             _even = _lenght % 2 == 0;
             Console.WriteLine("Even : " + (_even ? "true" : "false"));
 
             // Generate SymboleBlend
-            BlendAllSymbole();
-            Console.WriteLine("Origi : " + Constante.AllSymboleList);
-            Console.WriteLine("Blend : " + _blendedSymboleList);
+            // Seed create
+            var value = (uint)((_even ? 7 : 12) * _lenght);
+            for (var i = 0; i < _lenght; i++)
+            {
+                value += Constante.AllSymbole.Symbole2Value(_name[i]);
+            }
+            value *= Constante.AllSymbole.Length();
+
+            // Randomize create
+            Chaos chaos = new Chaos(value);
+
+            // Randomize
+            _blendedSymboleList.Randomize(chaos);
+
+            Console.WriteLine("Origi : " + Constante.AllSymbole.List);
+            Console.WriteLine("Randomize : " + _blendedSymboleList.List);
 
             // Calculate WeightOriginal
             _weightOriginal = 0;
             for (int i = 0; i < _lenght; i++)
-                _weightOriginal += Constante.SymboleValue(_name[i]);
+                _weightOriginal += Constante.AllSymbole.Symbole2Value(name[i]);
             _weightOriginal *= _lenght;
             Console.WriteLine("WeightOriginal : " + _weightOriginal);
 
             // Calculate WeightBlended
             _weightBlended = 0;
             for (int i = 0; i < _lenght; i++)
-                _weightBlended += SymboleValue(_name[i]);
+                _weightBlended += _blendedSymboleList.Symbole2Value(name[i]);
             _weightBlended *= _lenght;
             Console.WriteLine("WeightBlended : " + _weightBlended);
 
             // Calculate Offset
-            _offset = (uint)(_weightOriginal * _weightBlended - _lenght - _weightBlended) % (uint)Constante.AllSymboleList.Length;
+            _offset = (_weightOriginal * _weightBlended - _lenght - _weightBlended) % Constante.AllSymbole.Length();
             Console.WriteLine("Offset : " + _offset);
 
             // Base String Calculate
-            BaseStringCreate();
+            
+            ProcessBase();
+
+            Console.WriteLine("Base : " + _base);
 
             //
             Console.WriteLine();
         }
 
-        private void BlendAllSymbole()
+        private void ProcessBase()
         {
-            // Seed create
-            var value = (uint)((_even ? 7 : 12) * _lenght);
-            for (var i = 0; i < _lenght; i++)
-            {
-                value += (uint)Constante.SymboleValue(_name[i]);
-            }
-            value *= (uint)Constante.AllSymboleList.Length;
+            string[] words = SplitWords();
 
-            // Randomize create
-            _chaos = new Chaos(value);
-
-            // "Random" swap
-            for (int i = 0; i < Constante.AllSymboleList.Length; i++)
+            for (int i = 0; i < words.Length; i++)
             {
-                var rand = (int)(_chaos.Rand() % Constante.AllSymboleList.Length);
-                var temp = _blendedSymboleList[i];
-                _blendedSymboleList[i] = _blendedSymboleList[rand];
-                _blendedSymboleList[rand] = temp;
-            }
-        }
-
-        private int SymboleValue(char character)
-        {
-            if (character <= 0) throw new ArgumentOutOfRangeException(nameof(character));
-            for (int i = 0; i < _blendedSymboleList.Length; i++)
-            {
-                if (character == _blendedSymboleList[i])
+                char to_add;
+                StringBuilder tempo = new StringBuilder("");
+                int size = words[i].Length;
+                if (char.IsLetter(words[i][0]))
                 {
-                    return i;
+                    uint valueOffseted = Constante.LetterSymbole.Symbole2Value(words[i][0]);
+                    valueOffseted += _offset;
+                    if (valueOffseted >= Constante.LetterSymbole.Length())
+                        valueOffseted -= (uint) Constante.LetterSymbole.Length();
+                    char charOffseted = Constante.LetterSymbole.Value2Symbole(valueOffseted);
+
+                    to_add = _poolLetter.TryAdding(charOffseted);
+                    if(to_add != '\0')
+                        tempo.Append(to_add);
                 }
+                to_add = _poolFigure.TryAdding((words[i].Length%10).ToString()[0]);
+                if(to_add != '\0')
+                    tempo.Append(to_add);
+                _base.Append(tempo);
             }
-            return _blendedSymboleList.Length;
+           
         }
 
-        private void BaseStringCreate()
+        private string[] SplitWords()
         {
             string[] words = _name.Split(' ');
+
             for (int i = 0; i < words.Length; i++)
             {
                 Console.WriteLine(i + " : " + words[i]);
             }
-        }
 
-        private char GetAvaibleLetterBase(char character)
-        {
-            char returned = character;
-            for(int i = 0; i < usedLetter.Length; i++)
-            {
-                if (usedLetter[i] == character)
-                {
-                    
-                }
-            }
-            return returned;
+            return words;
         }
     }
 }

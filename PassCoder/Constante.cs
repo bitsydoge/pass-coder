@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Linq;
 
 namespace PassCoder
 {
@@ -6,34 +6,10 @@ namespace PassCoder
     {
         public int[] MajVariation = { 1, 3, 2, 1, 1, 4, 3, 1, 1, 4, 1, 2, 4, 1, 2, 4, 1, 2, 1, 1, 2, 1, 2, 3, 1, 2, 1, 1, 2, 3, 2 };
         public int[] SymboleVariation = { 1, 4, 3, 2, 1, 2, 1, 2, 1, 1, 2, 1, 3, 2, 1, 1, 2, 1, 4, 1, 2, 1, 4, 1, 1, 2, 3, 1, 2, 1, 2, 1, 1, 2, 4, 1 };
-        public static string AllSymboleList = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
-        public static string SpecialSymbole = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
 
-        public static int SymboleValue(char character)
-        {
-            if (character <= 0) throw new ArgumentOutOfRangeException(nameof(character));
-            for (int i = 0; i < AllSymboleList.Length; i++)
-            {
-                if (character == AllSymboleList[i])
-                {
-                    return i;
-                }
-            }
-            return AllSymboleList.Length;
-        }
-
-        public static int SpecialSymboleValue(char character)
-        {
-            if (character <= 0) throw new ArgumentOutOfRangeException(nameof(character));
-            for (int i = 0; i < AllSymboleList.Length; i++)
-            {
-                if (character == AllSymboleList[i])
-                {
-                    return i;
-                }
-            }
-            return AllSymboleList.Length;
-        }
-
+        public static ValuedSymboleList AllSymbole = new ValuedSymboleList("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~");
+        public static ValuedSymboleList LetterSymbole = new ValuedSymboleList("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        public static ValuedSymboleList SpecialSymbole = new ValuedSymboleList(" !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~");
+        public static ValuedSymboleList FigureSymbole = new ValuedSymboleList("0123456789");
     }
 }
