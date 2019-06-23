@@ -17,14 +17,9 @@ namespace PassCoder
         public readonly ValuedSymboleList _blendedSymboleList = new ValuedSymboleList(Constante.AllSymbole);
 
         public StringBuilder _base = new StringBuilder();
-        public StringBuilder _baseOffseted = new StringBuilder();
 
         public UniqueSymbolePool _poolLetter = new UniqueSymbolePool(Constante.LetterSymbole);
         public UniqueSymbolePool _poolFigure = new UniqueSymbolePool(Constante.FigureSymbole);
-
-        public char[] _usedLetter = new char[Constante.LetterSymbole.Length()];
-        public char[] _usedSymbole = new char[Constante.SpecialSymbole.Length()];
-        public char[] _usedFigure = new char[Constante.FigureSymbole.Length()];
 
         public PhraseProcessed(string name)
         {

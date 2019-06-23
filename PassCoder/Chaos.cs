@@ -2,8 +2,8 @@
 {
     public class Chaos
     {
-        private readonly uint _seedSave;
         private uint _actualRank;
+        private uint _seedSave;
 
         private readonly uint[] _rndArray =
         {
@@ -593,6 +593,10 @@
             _actualRank = _seedSave % (uint)_rndArray.Length;
         }
 
+        public uint GetSeed()
+        {
+            return _seedSave;
+        }
 
         public uint Rand()
         {
