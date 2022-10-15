@@ -1,29 +1,10 @@
 ﻿using System;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace PassCoder
 {
-    public class Core
+    public partial class CLI
     {
-        private PhraseProcessed _myPhrase;
-        private PhraseProcessed _mySite;
-
-        public Core()
-        {
-            Console.Write("Enter your Pass Phrase : ");
-            _myPhrase = new PhraseProcessed(Console.ReadLine());
-
-            Console.Write("Enter your Site Name   : ");
-            _mySite = new PhraseProcessed(Console.ReadLine());
-
-            GeneratePassword myGeneratePassword = new GeneratePassword(_myPhrase, _mySite);
-            myGeneratePassword.WriteFinal();
-
-            Console.WriteLine("Press Anykey to quit");
-            Console.ReadLine();
-        }
-
         public class GeneratePassword
         {
             private PhraseProcessed _phrase;
@@ -52,42 +33,36 @@ namespace PassCoder
 
                 for (int i = 0; i < phrase._base.Length; i++)
                 {
-                    if (Char.IsLetter(phrase._base[i]))
+                    if (char.IsLetter(phrase._base[i]))
                     {
-                        uint valueOffseted = Constante.LetterSymbole.Symbole2Value(phrase._base[i]);
+                        uint valueOffseted = Constant.LetterSymbole.Symbole2Value(phrase._base[i]);
                         valueOffseted += offset_letter;
-                        if (valueOffseted >= Constante.LetterSymbole.Length())
-                            valueOffseted -= Constante.LetterSymbole.Length();
-                        char charOffseted = Constante.LetterSymbole.Value2Symbole(valueOffseted);
+                        if (valueOffseted >= Constant.LetterSymbole.Length())
+                            valueOffseted -= Constant.LetterSymbole.Length();
+                        char charOffseted = Constant.LetterSymbole.Value2Symbole(valueOffseted);
                         final.Append(charOffseted);
                     }
-                    else if (Char.IsNumber(phrase._base[i]))
+                    else if (char.IsNumber(phrase._base[i]))
                     {
                         uint to_int = (uint)Char.GetNumericValue(phrase._base[i]);
                         to_int += offset_number;
-                        if (to_int >= Constante.FigureSymbole.Length())
-                            to_int -= (uint) Constante.FigureSymbole.Length();
-                        char charOffseted = Constante.FigureSymbole.Value2Symbole(to_int);
+                        if (to_int >= Constant.FigureSymbole.Length())
+                            to_int -= (uint)Constant.FigureSymbole.Length();
+                        char charOffseted = Constant.FigureSymbole.Value2Symbole(to_int);
                         final.Append(charOffseted);
                     }
                 }
 
-                //uint newSeed = 0;
-                //for (int i = 0; i < ((phrase._lenght+site._lenght)%phrase._blendedSymboleList.List.Length); i++)
-                //{
-                 //   newSeed += (uint)(phrase._blendedSymboleList.List[i] + site._blendedSymboleList.List[i]);
-                //}
-
+                // 
                 uint newSeed = phrase._weightBlended + phrase._weightOriginal + site._weightBlended + site._weightOriginal;
-
-                Chaos newChaos = new Chaos(newSeed);
+                RandGen newChaos = new RandGen(newSeed);
 
                 ValuedSymboleList post_last = new ValuedSymboleList(final.ToString());
                 post_last.Randomize(newChaos);
                 final = new StringBuilder(post_last.List.ToString());
 
                 // Check Size and compensate with adding symbole
-                UniqueSymbolePool poolSpecialSymbole = new UniqueSymbolePool(Constante.SpecialSymbole);
+                UniqueSymbolePool poolSpecialSymbole = new UniqueSymbolePool(Constant.SpecialSymbole);
                 int number_special_to_add = 4;
                 if (final.Length <= 14)
                 {
@@ -96,23 +71,26 @@ namespace PassCoder
 
                 for (int i = 0; i < number_special_to_add; i++)
                 {
-                    final.Append(Constante.SpecialSymbole.Value2Symbole(newChaos.Rand() % Constante.SpecialSymbole.Length()));
+                    final.Append(Constant.SpecialSymbole.Value2Symbole(newChaos.Rand() % Constant.SpecialSymbole.Length()));
                 }
 
                 ValuedSymboleList last = new ValuedSymboleList(final.ToString());
                 last.Randomize(newChaos);
                 final = new StringBuilder(last.List.ToString());
-
-                // Count Upcase
-                
-
             }
 
             public void WriteFinal()
             {
-                Console.WriteLine("");
-                Console.WriteLine("------------------------");
-                Console.WriteLine("Final Password : " + final);
+                Console.WriteLine("----------------------------");
+                Console.WriteLine("|     Password Generated   |");
+                Console.WriteLine("----------------------------");
+                Console.WriteLine();
+                Console.WriteLine(final);
+                Console.WriteLine();
+                Console.WriteLine("----------------------------");
+                Console.WriteLine("|  Press Anykey to quit    |");
+                Console.WriteLine("----------------------------");
+                Console.ReadLine();
             }
         }
     }

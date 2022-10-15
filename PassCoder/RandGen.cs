@@ -1,6 +1,6 @@
 ﻿namespace PassCoder
 {
-    public class Chaos
+    public class RandGen
     {
         private uint _actualRank;
         private uint _seedSave;
@@ -587,7 +587,7 @@
             8132, 159, 4142, 899, 7699, 7182, 4911, 1598
         };
 
-        public Chaos(uint seed)
+        public RandGen(uint seed)
         {
             _seedSave = seed;
             _actualRank = _seedSave % (uint)_rndArray.Length;

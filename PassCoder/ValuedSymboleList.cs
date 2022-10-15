@@ -40,7 +40,7 @@ namespace PassCoder
             return (uint)List.Length;
         }
 
-        public void Randomize(Chaos chaos)
+        public void Randomize(RandGen chaos)
         {
             for (int i = 0; i < Length(); i++)
             {

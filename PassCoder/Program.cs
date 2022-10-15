@@ -7,7 +7,7 @@ namespace PassCoder
     {
         static void Main(string[] args)
         {
-           Core myCore = new Core();
+            _ = new CLI(args.Length == 0);
         }
     }
 }
