@@ -1,97 +1,90 @@
-﻿using System;
+﻿namespace PassCoder;
+
+using System;
 using System.Text;
 
-namespace PassCoder
+public partial class Cli
 {
-    public partial class CLI
-    {
-        public class GeneratePassword
-        {
-            private PhraseProcessed _phrase;
-            private PhraseProcessed _site;
-            private StringBuilder final = new StringBuilder("");
+	public class GeneratePassword
+	{
+		private readonly StringBuilder _final = new("");
 
-            public GeneratePassword(PhraseProcessed phrase, PhraseProcessed site)
-            {
-                _phrase = phrase;
-                _site = site;
+		public GeneratePassword(PhraseProcessed phrase, PhraseProcessed site)
+		{
+			uint offsetNumber = 0;
+			uint offsetLetter = 0;
 
-                uint offset_number = 0;
-                uint offset_letter = 0;
+			for (var i = 0; i < site.Base.Length; i++)
+			{
+				if (char.IsLetter(site.Base[i]))
+				{
+					offsetLetter += site.BlendedSymbolList.Symbol2Value(site.Base[i]) - phrase.BlendedSymbolList.Symbol2Value(site.Base[i]);
+				}
+				else if (char.IsNumber(site.Base[i]))
+				{
+					offsetNumber += site.BlendedSymbolList.Symbol2Value(site.Base[i]) - phrase.BlendedSymbolList.Symbol2Value(site.Base[i]);
+				}
+			}
 
-                for (int i = 0; i < _site._base.Length; i++)
-                {
-                    if (Char.IsLetter(site._base[i]))
-                    {
-                        offset_letter += _site._blendedSymboleList.Symbole2Value(site._base[i]) - _phrase._blendedSymboleList.Symbole2Value(site._base[i]);
-                    }
-                    else if (Char.IsNumber(site._base[i]))
-                    {
-                        offset_number += _site._blendedSymboleList.Symbole2Value(site._base[i]) - _phrase._blendedSymboleList.Symbole2Value(site._base[i]);
-                    }
-                }
+			for (var i = 0; i < phrase.Base.Length; i++)
+			{
+				if (char.IsLetter(phrase.Base[i]))
+				{
+					var valueWithOffset = Constant.LetterSymbol.Symbol2Value(phrase.Base[i]);
+					valueWithOffset += offsetLetter;
+					if (valueWithOffset >= Constant.LetterSymbol.Length())
+						valueWithOffset -= Constant.LetterSymbol.Length();
+					var charWithOffset = Constant.LetterSymbol.Value2Symbol(valueWithOffset);
+					_final.Append(charWithOffset);
+				}
+				else if (char.IsNumber(phrase.Base[i]))
+				{
+					var toInt = (uint)char.GetNumericValue(phrase.Base[i]);
+					toInt += offsetNumber;
+					if (toInt >= Constant.FigureSymbol.Length())
+						toInt -= Constant.FigureSymbol.Length();
+					var charWithOffset = Constant.FigureSymbol.Value2Symbol(toInt);
+					_final.Append(charWithOffset);
+				}
+			}
 
-                for (int i = 0; i < phrase._base.Length; i++)
-                {
-                    if (char.IsLetter(phrase._base[i]))
-                    {
-                        uint valueOffseted = Constant.LetterSymbole.Symbole2Value(phrase._base[i]);
-                        valueOffseted += offset_letter;
-                        if (valueOffseted >= Constant.LetterSymbole.Length())
-                            valueOffseted -= Constant.LetterSymbole.Length();
-                        char charOffseted = Constant.LetterSymbole.Value2Symbole(valueOffseted);
-                        final.Append(charOffseted);
-                    }
-                    else if (char.IsNumber(phrase._base[i]))
-                    {
-                        uint to_int = (uint)Char.GetNumericValue(phrase._base[i]);
-                        to_int += offset_number;
-                        if (to_int >= Constant.FigureSymbole.Length())
-                            to_int -= (uint)Constant.FigureSymbole.Length();
-                        char charOffseted = Constant.FigureSymbole.Value2Symbole(to_int);
-                        final.Append(charOffseted);
-                    }
-                }
+			// 
+			var newSeed = phrase.WeightBlended + phrase.WeightOriginal + site.WeightBlended + site.WeightOriginal;
+			var newChaos = new RandGen(newSeed);
 
-                // 
-                uint newSeed = phrase._weightBlended + phrase._weightOriginal + site._weightBlended + site._weightOriginal;
-                RandGen newChaos = new RandGen(newSeed);
+			var postLast = new ValuedSymbolList(_final.ToString());
+			postLast.Randomize(newChaos);
+			_final = new StringBuilder(postLast.List.ToString());
 
-                ValuedSymboleList post_last = new ValuedSymboleList(final.ToString());
-                post_last.Randomize(newChaos);
-                final = new StringBuilder(post_last.List.ToString());
+			// Check Size and compensate with adding symbol
+			var numberSpecialToAdd = 4;
+			if (_final.Length <= 14)
+			{
+				numberSpecialToAdd += 14 - _final.Length;
+			}
 
-                // Check Size and compensate with adding symbole
-                UniqueSymbolePool poolSpecialSymbole = new UniqueSymbolePool(Constant.SpecialSymbole);
-                int number_special_to_add = 4;
-                if (final.Length <= 14)
-                {
-                    number_special_to_add += (14 - final.Length);
-                }
+			for (var i = 0; i < numberSpecialToAdd; i++)
+			{
+				_final.Append(Constant.SpecialSymbol.Value2Symbol(newChaos.Rand() % Constant.SpecialSymbol.Length()));
+			}
 
-                for (int i = 0; i < number_special_to_add; i++)
-                {
-                    final.Append(Constant.SpecialSymbole.Value2Symbole(newChaos.Rand() % Constant.SpecialSymbole.Length()));
-                }
+			var last = new ValuedSymbolList(_final.ToString());
+			last.Randomize(newChaos);
+			_final = new StringBuilder(last.List.ToString());
+		}
 
-                ValuedSymboleList last = new ValuedSymboleList(final.ToString());
-                last.Randomize(newChaos);
-                final = new StringBuilder(last.List.ToString());
-            }
-
-            public void WriteFinal()
-            {
-                Console.WriteLine("----------------------------");
-                Console.WriteLine("|     Password Generated   |");
-                Console.WriteLine("----------------------------");
-                Console.WriteLine();
-                Console.WriteLine(final);
-                Console.WriteLine();
-                Console.WriteLine("----------------------------");
-                Console.WriteLine("|  Press Anykey to quit    |");
-                Console.WriteLine("----------------------------");
-                Console.ReadLine();
-            }
-        }
-    }
+		public void WriteFinal()
+		{
+			Console.WriteLine("----------------------------");
+			Console.WriteLine("|     Password Generated   |");
+			Console.WriteLine("----------------------------");
+			Console.WriteLine();
+			Console.WriteLine(_final);
+			Console.WriteLine();
+			Console.WriteLine("----------------------------");
+			Console.WriteLine("|  Press Any key to quit   |");
+			Console.WriteLine("----------------------------");
+			Console.ReadLine();
+		}
+	}
 }

@@ -1,13 +1,9 @@
-﻿using System;
+﻿namespace PassCoder;
 
-namespace PassCoder
+internal class Program
 {
-    // Because fuck those static shit
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            _ = new CLI(args.Length == 0);
-        }
-    }
+	private static void Main(string[] args)
+	{
+		_ = new Cli(args.Length > 0);
+	}
 }
